@@ -1,0 +1,29 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class InspectionStoreRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'nama_pasien' => ['required', 'string', 'max:255'],
+            'tinggi_badan' => ['required', 'numeric', 'between:0,300'], // decimal(10,2)
+            'berat_badan' => ['required', 'numeric', 'between:0,500'], // decimal(10,2)
+            'systole' => ['required', 'string', 'max:10'], // string
+            'diastole' => ['required', 'string', 'max:10'], // string
+            'heart_rate' => ['required', 'string', 'max:10'], // string
+            'respiration_rate' => ['required', 'string', 'max:10'], // string
+            'suhu_tubuh' => ['required', 'numeric', 'between:30,45'], // decimal(10,2)
+            'hasil_pemeriksaan' => ['required', 'string'], // longText
+            'status' => ['required', 'string', 'max:50'], // string
+        ];
+    }
+}
