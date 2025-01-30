@@ -12,7 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inspections', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id_inspection');
+            $table->string('nama_pasien');
+            $table->decimal('tinggi_badan', 10, 2);
+            $table->decimal('berat_badan', 10, 2);
+            $table->string('systole');
+            $table->string('diastole');
+            $table->string('heart_rate');
+            $table->string('respiration_rate');
+            $table->decimal('suhu_tubuh', 10, 2);
+            $table->longText('hasil_pemeriksaan');
+            $table->string('status');
+
             $table->timestamps();
         });
     }
