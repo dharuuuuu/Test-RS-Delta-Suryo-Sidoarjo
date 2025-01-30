@@ -5,6 +5,8 @@ namespace Database\Factories;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Arr;
 
 class UserFactory extends Factory
 {
@@ -26,9 +28,9 @@ class UserFactory extends Factory
             'name' => $this->faker->name(),
             'email' => $this->faker->unique->email(),
             'email_verified_at' => now(),
-            'password' => \Hash::make('password'),
+            'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
-            'gender' => \Arr::random(['male', 'female', 'other']),
+            'gender' => Arr::random(['Laki-Laki', 'Perempuan']),
             'date_of_birth' => $this->faker->date(),
         ];
     }

@@ -19,11 +19,16 @@ class PermissionController extends Controller
         $this->authorize('view-any', Permission::class);
 
         $search = $request->get('search', '');
-        $permissions = Permission::where('name', 'like', "%{$search}%")->paginate(10);
 
-        return view('app.permissions.index')
-            ->with('permissions', $permissions)
-            ->with('search', $search);
+        $permissions = Permission::query()
+            ->when($search, function ($query, $search) {
+                return $query->where('name', 'like', "%{$search}%");
+            })
+            ->orderByDesc('created_at') // Pastikan data terbaru ada di atas
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('app.permissions.index', compact('permissions', 'search'));
     }
 
     /**

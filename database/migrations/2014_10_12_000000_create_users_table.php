@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->timestamp('two_factor_confirmed_at')->nullable();
             $table->foreignId('current_team_id')->nullable();
             $table->text('profile_photo_path')->nullable();
-            $table->enum('gender', ['male', 'female', 'other']);
+            $table->enum('gender', ['Laki-Laki', 'Perempuan']);
             $table->date('date_of_birth');
 
             $table->timestamps();

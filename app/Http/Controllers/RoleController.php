@@ -19,12 +19,18 @@ class RoleController extends Controller {
         $this->authorize('view-any', Role::class);
 
         $search = $request->get('search', '');
-        $roles = Role::where('name', 'like', "%{$search}%")->paginate(10);
 
-        return view('app.roles.index')
-            ->with('roles', $roles)
-            ->with('search', $search);
+        $roles = Role::query()
+            ->when($search, function ($query, $search) {
+                return $query->where('name', 'like', "%{$search}%");
+            })
+            ->orderByDesc('created_at') // Pastikan data terbaru ada di atas
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('app.roles.index', compact('roles', 'search'));
     }
+
 
     /**
      * Show the form for creating a new resource.

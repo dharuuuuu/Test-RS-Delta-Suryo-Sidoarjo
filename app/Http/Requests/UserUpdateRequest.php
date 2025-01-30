@@ -28,7 +28,7 @@ class UserUpdateRequest extends FormRequest
                 'email',
             ],
             'password' => ['nullable'],
-            'gender' => ['required', 'in:male,female,other'],
+            'gender' => ['required', 'in:Laki-Laki,Perempuan'],
             'date_of_birth' => ['required', 'date'],
             'roles' => 'array',
         ];

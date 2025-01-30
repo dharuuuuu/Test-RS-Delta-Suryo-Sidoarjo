@@ -22,9 +22,12 @@ class UserController extends Controller
 
         $search = $request->get('search', '');
 
-        $users = User::search($search)
-            ->latest()
-            ->paginate(5)
+        $users = User::query()
+            ->when($search, function ($query, $search) {
+                return $query->where('name', 'like', "%{$search}%");
+            })
+            ->orderByDesc('created_at')
+            ->paginate(10)
             ->withQueryString();
 
         return view('app.users.index', compact('users', 'search'));
@@ -58,7 +61,7 @@ class UserController extends Controller
         $user->syncRoles($request->roles);
 
         return redirect()
-            ->route('users.edit', $user)
+            ->route('users.index')
             ->withSuccess(__('crud.common.created'));
     }
 
