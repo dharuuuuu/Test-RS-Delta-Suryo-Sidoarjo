@@ -16,7 +16,7 @@
                                     <x-inputs.text
                                         name="search"
                                         value="{{ $search ?? '' }}"
-                                        placeholder="Seach Nama.."
+                                        placeholder="Search Nama.."
                                         autocomplete="off"
                                     ></x-inputs.text>
 
@@ -48,7 +48,7 @@
                                 <th class="px-4 py-3 text-left">@lang('crud.users.inputs.email')</th>
                                 <th class="px-4 py-3 text-left">@lang('crud.users.inputs.gender')</th>
                                 <th class="px-4 py-3 text-left">@lang('crud.users.inputs.date_of_birth')</th>
-                                <th></th>
+                                <th class="px-4 py-3 text-left">Action</th>
                             </tr>
                         </thead>
                         <tbody class="text-gray-600">
@@ -80,14 +80,15 @@
                                         @endcan 
 
                                         @can('delete', $user)
-                                        <button 
-                                            type="button" 
-                                            class="button delete-user" 
-                                            data-id="{{ $user->id }}"
-                                            data-name="{{ $user->name }}"
-                                        >
-                                            <i class="icon ion-md-trash text-red-600"></i>
-                                        </button>
+                                            <form id="deleteForm" action="{{ route('users.destroy', $user->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <div role="group" aria-label="Row Actions" class=" relative inline-flex align-middle">
+                                                    <button type="button" class="button" onclick="confirmDelete('{{ $user->id }}')">
+                                                        <i class="icon ion-md-trash text-red-500"></i>
+                                                    </button>
+                                                </div>
+                                            </form>
                                         @endcan
                                     </div>
                                 </td>
@@ -118,51 +119,23 @@
     <!-- Tambahkan SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.delete-user').forEach(button => {
-                button.addEventListener('click', function () {
-                    let userId = this.getAttribute('data-id');
-                    let userName = this.getAttribute('data-name');
-                    
-                    Swal.fire({
-                        title: `Are you sure?`,
-                        text: `You are about to delete ${userName}. This action cannot be undone!`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Yes, delete it!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            fetch(`/users/${userId}`, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ _method: 'DELETE' })
-                            }).then(response => {
-                                if (response.ok) {
-                                    Swal.fire({
-                                        title: "Deleted!",
-                                        text: `${userName} has been deleted.`,
-                                        icon: "success",
-                                        confirmButtonText: "OK",
-                                        confirmButtonColor: "#3085d6", // Ubah warna tombol OK agar lebih terlihat
-                                        customClass: {
-                                            confirmButton: 'swal-custom-button' // Tambahkan class untuk styling tambahan
-                                        }
-                                    }).then(() => {
-                                        window.location.reload(); // Reload halaman setelah klik OK
-                                    });
-                                } else {
-                                    Swal.fire('Error!', 'Something went wrong.', 'error');
-                                }
-                            });
-                        }
-                    });
-                });
+        function confirmDelete(userId) {
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: 'Konfirmasi hapus user',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yakin',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Jika konfirmasi, submit formulir secara manual
+                    document.getElementById('deleteForm').action = '{{ route('users.destroy', '') }}/' + userId;
+                    document.getElementById('deleteForm').submit();
+                }
             });
-        });
+        }
     </script>
 </x-app-layout>

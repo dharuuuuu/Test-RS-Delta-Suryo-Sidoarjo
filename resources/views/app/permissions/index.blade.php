@@ -45,7 +45,7 @@
                             <tr>
                                 <th class="px-4 py-3 text-left">No</th>
                                 <th class="px-4 py-3 text-left">@lang('crud.permissions.inputs.name')</th>
-                                <th></th>
+                                <th class="px-4 py-3 text-left">Action</th>
                             </tr>
                         </thead>
                         <tbody class="text-gray-600">
@@ -76,10 +76,15 @@
                                         @endcan 
 
                                         @can('delete', $permission)
-                                        <button type="button" class="button delete-permission" 
-                                            data-id="{{ $permission->id }}" data-name="{{ $permission->name }}">
-                                            <i class="icon ion-md-trash text-red-600"></i>
-                                        </button>
+                                            <form id="deleteForm" action="{{ route('permissions.destroy', $permission->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <div role="group" aria-label="Row Actions" class=" relative inline-flex align-middle">
+                                                    <button type="button" class="button" onclick="confirmDelete('{{ $permission->id }}')">
+                                                        <i class="icon ion-md-trash text-red-500"></i>
+                                                    </button>
+                                                </div>
+                                            </form>
                                         @endcan
                                     </div>
                                 </td>
@@ -110,44 +115,23 @@
     <!-- Tambahkan SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.delete-permission').forEach(button => {
-                button.addEventListener('click', function () {
-                    let permissionId = this.getAttribute('data-id');
-                    let permissionName = this.getAttribute('data-name');
-                    
-                    Swal.fire({
-                        title: "Are you sure?",
-                        text: `You are about to delete the permission: ${permissionName}. This action cannot be undone!`,
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#d33",
-                        cancelButtonColor: "#3085d6",
-                        confirmButtonText: "Yes, delete it!",
-                        customClass: {
-                            confirmButton: 'swal-confirm-btn'
-                        }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            fetch(`/permissions/${permissionId}`, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ _method: 'DELETE' })
-                            }).then(response => {
-                                if (response.ok) {
-                                    Swal.fire('Deleted!', `${permissionName} has been deleted.`, 'success')
-                                        .then(() => window.location.reload());
-                                } else {
-                                    Swal.fire('Error!', 'Something went wrong.', 'error');
-                                }
-                            });
-                        }
-                    });
-                });
+        function confirmDelete(permissionId) {
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: 'Konfirmasi hapus permission',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yakin',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Jika konfirmasi, submit formulir secara manual
+                    document.getElementById('deleteForm').action = '{{ route('permissions.destroy', '') }}/' + permissionId;
+                    document.getElementById('deleteForm').submit();
+                }
             });
-        });
+        }
     </script>
 </x-app-layout>

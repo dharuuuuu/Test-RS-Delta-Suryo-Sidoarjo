@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('invoices', function (Blueprint $table) {
-            $table->bigIncrements('id_invoice');
+            $table->bigIncrements('id');
             $table->unsignedBigInteger('id_inspection');
             $table->integer('total_harga');
             $table->integer('total_bayar');
@@ -21,7 +21,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->foreign('id_inspection')->references('id_inspection')->on('inspections')->onUpdate('CASCADE')->onDelete('cascade');
+            $table->foreign('id_inspection')->references('id')->on('inspections')->onUpdate('CASCADE')->onDelete('cascade');
         });
     }
 

@@ -44,14 +44,4 @@ class User extends Authenticatable
         'two_factor_confirmed_at' => 'datetime',
         'date_of_birth' => 'date',
     ];
-
-    public function certificates()
-    {
-        return $this->hasMany(Certificate::class);
-    }
-
-    public function isSuperAdmin(): bool
-    {
-        return $this->hasRole('super-admin');
-    }
 }

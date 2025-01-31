@@ -15,15 +15,16 @@ class InspectionUpdateRequest extends FormRequest
     {
         return [
             'nama_pasien' => ['required', 'string', 'max:255'],
-            'tinggi_badan' => ['required', 'numeric', 'between:0,300'], // decimal(10,2)
-            'berat_badan' => ['required', 'numeric', 'between:0,500'], // decimal(10,2)
+            'tinggi_badan' => ['required', 'numeric'], // decimal(10,2)
+            'berat_badan' => ['required', 'numeric'], // decimal(10,2)
             'systole' => ['required', 'string', 'max:10'], // string
             'diastole' => ['required', 'string', 'max:10'], // string
             'heart_rate' => ['required', 'string', 'max:10'], // string
             'respiration_rate' => ['required', 'string', 'max:10'], // string
-            'suhu_tubuh' => ['required', 'numeric', 'between:30,45'], // decimal(10,2)
+            'suhu_tubuh' => ['required', 'numeric'], // decimal(10,2)
             'hasil_pemeriksaan' => ['required', 'string'], // longText
             'status' => ['required', 'string', 'max:50'], // string
+            'tanggal_pemeriksaan' => ['required', 'date'],
         ];
     }
 }

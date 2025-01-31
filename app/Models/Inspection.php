@@ -13,7 +13,7 @@ class Inspection extends Model
     protected $table = 'inspections';
 
     // Primary key yang digunakan (karena custom)
-    protected $primaryKey = 'id_inspection';
+    protected $primaryKey = 'id';
 
     // Jika ID bukan auto-increment default
     public $incrementing = true;
@@ -36,6 +36,7 @@ class Inspection extends Model
         'suhu_tubuh',
         'hasil_pemeriksaan',
         'status',
+        'tanggal_pemeriksaan',
     ];
 
     // Cast tipe data agar otomatis dikonversi ke tipe yang sesuai

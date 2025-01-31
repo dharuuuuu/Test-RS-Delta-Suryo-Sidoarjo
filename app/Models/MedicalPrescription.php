@@ -13,7 +13,7 @@ class MedicalPrescription extends Model
     protected $table = 'medical_prescriptions';
 
     // Primary key yang digunakan (karena custom)
-    protected $primaryKey = 'id_medicine';
+    protected $primaryKey = 'id';
 
     // Jika ID bukan auto-increment default
     public $incrementing = true;
@@ -27,12 +27,13 @@ class MedicalPrescription extends Model
     // Mass Assignment Protection (kolom yang bisa diisi secara massal)
     protected $fillable = [
         'id_inspection',
-        'harga',
+        'harga_satuan',
+        'jumlah',
     ];
 
     // Relationship ke model Inspection
     public function inspection()
     {
-        return $this->belongsTo(Inspection::class, 'id_inspection', 'id_inspection');
+        return $this->belongsTo(Inspection::class, 'id_inspection', 'id');
     }
 }

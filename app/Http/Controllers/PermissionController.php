@@ -62,7 +62,7 @@ class PermissionController extends Controller
         $permission->syncRoles($roles);
 
         return redirect()
-            ->route('permissions.edit', $permission->id)
+            ->route('permissions.index')
             ->withSuccess(__('crud.common.created'));
     }
 

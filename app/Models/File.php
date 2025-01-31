@@ -13,7 +13,7 @@ class File extends Model
     protected $table = 'files';
 
     // Primary key yang digunakan (karena custom)
-    protected $primaryKey = 'id_file';
+    protected $primaryKey = 'id';
 
     // Jika ID bukan auto-increment default
     public $incrementing = true;
@@ -33,6 +33,6 @@ class File extends Model
     // Relationship ke model Inspection
     public function inspection()
     {
-        return $this->belongsTo(Inspection::class, 'id_inspection', 'id_inspection');
+        return $this->belongsTo(Inspection::class, 'id_inspection', 'id');
     }
 }

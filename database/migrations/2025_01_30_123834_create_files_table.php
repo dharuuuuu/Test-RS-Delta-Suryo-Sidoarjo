@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('files', function (Blueprint $table) {
-            $table->bigIncrements('id_file');
+            $table->bigIncrements('id');
             $table->unsignedBigInteger('id_inspection');
             $table->longText('file_url');
 
             $table->timestamps();
 
-            $table->foreign('id_inspection')->references('id_inspection')->on('inspections')->onUpdate('CASCADE')->onDelete('cascade');
+            $table->foreign('id_inspection')->references('id')->on('inspections')->onUpdate('CASCADE')->onDelete('cascade');
         });
     }
 

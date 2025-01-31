@@ -76,7 +76,7 @@ class InspectionController extends Controller
     {
         $this->authorize('update', $inspection);
 
-        return view('app.inspections.edit', compact('user'));
+        return view('app.inspections.edit', compact('inspection'));
     }
 
     /**
@@ -100,7 +100,7 @@ class InspectionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Inspection $inspection): RedirectResponse
+    public function destroy(Inspection $inspection): RedirectResponse
     {
         $this->authorize('delete', $inspection);
 

@@ -15,7 +15,8 @@ class MedicalPrescriptionStoreRequest extends FormRequest
     {
         return [
             'id_inspection' => ['required', 'exists:inspections,id_inspection'], // foreign key
-            'harga' => ['required', 'integer', 'min:0'], // integer
+            'harga_satuan' => ['required', 'integer', 'min:0'], 
+            'jumlah' => ['required', 'integer', 'min:0'], 
         ];
     }
 }
