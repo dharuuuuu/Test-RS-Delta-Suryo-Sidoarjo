@@ -3,9 +3,9 @@
 <div class="flex flex-wrap -mx-4">
     <div class="w-full md:w-full px-4">
         <x-inputs.group class="w-full">
+            <x-inputs.label-with-asterisk label="Full Name"/>
             <x-inputs.text
                 name="name"
-                label="Full Name"
                 :value="old('name', ($editing ? $user->name : ''))"
                 maxlength="255"
                 placeholder="Full Name"
@@ -16,9 +16,9 @@
 
     <div class="w-full md:w-1/2 px-4">
         <x-inputs.group class="w-full">
+            <x-inputs.label-with-asterisk label="Email"/>
             <x-inputs.email
                 name="email"
-                label="Email"
                 :value="old('email', ($editing ? $user->email : ''))"
                 maxlength="255"
                 placeholder="Email"
@@ -29,9 +29,9 @@
 
     <div class="w-full md:w-1/2 px-4">
         <x-inputs.group class="w-full">
+            <x-inputs.label-with-asterisk label="Password"/>
             <x-inputs.password
                 name="password"
-                label="Password"
                 maxlength="255"
                 placeholder="Password"
                 :required="!$editing"
@@ -41,7 +41,8 @@
 
     <div class="w-full md:w-1/2 px-4">
         <x-inputs.group class="w-full">
-            <x-inputs.select name="gender" label="Gender">
+            <x-inputs.label-with-asterisk label="Gender"/>
+            <x-inputs.select name="gender">
                 @php $selected = old('gender', ($editing ? $user->gender : '')) @endphp
                 <option value="Laki-Laki" {{ $selected == 'Laki-Laki' ? 'selected' : '' }}>Male</option>
                 <option value="Perempuan" {{ $selected == 'Perempuan' ? 'selected' : '' }}>Female</option>
@@ -51,9 +52,9 @@
 
     <div class="w-full md:w-1/2 px-4">
         <x-inputs.group class="w-full">
+            <x-inputs.label-with-asterisk label="Date of Birth"/>
             <x-inputs.date
                 name="date_of_birth"
-                label="Date of Birth"
                 value="{{ old('date_of_birth', ($editing ? optional($user->date_of_birth)->format('Y-m-d') : '')) }}"
                 max="255"
                 required

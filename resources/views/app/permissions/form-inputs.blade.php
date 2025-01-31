@@ -2,9 +2,9 @@
 
 <div class="flex flex-wrap">
     <x-inputs.group class="w-full">
+        <x-inputs.label-with-asterisk label="Nama Permission"/>
         <x-inputs.text
             name="name"
-            label="Name"
             :value="old('name', ($editing ? $permission->name : ''))"
         ></x-inputs.text>
     </x-inputs.group>
