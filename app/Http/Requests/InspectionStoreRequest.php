@@ -25,6 +25,7 @@ class InspectionStoreRequest extends FormRequest
             'hasil_pemeriksaan' => ['required', 'string'], // longText
             'status' => ['required', 'string', 'max:50'], // string
             'tanggal_pemeriksaan' => ['required', 'date'],
+            'file_url' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10000',
         ];
     }
 }

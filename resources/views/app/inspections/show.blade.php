@@ -43,7 +43,7 @@
                                 <h5 class="font-medium text-gray-700">
                                     Berat Badan (kg)
                                 </h5>
-                                <span>{{ $inspection->tinggi_badan ?? '-' }}</span>
+                                <span>{{ $inspection->berat_badan ?? '-' }}</span>
                             </div>
 
                             <div class="mb-4">
@@ -127,6 +127,28 @@
                                     </div>
                                 @endif
                             </div>
+
+                            {{-- File Section: Show download button if file exists --}}
+                            @if ($inspection->file_url)
+                                <div class="mb-4">
+                                    <h5 class="font-medium text-gray-700">
+                                        File Pemeriksaan
+                                    </h5>
+                                    <a 
+                                        href="{{ Storage::url($inspection->file_url) }}" 
+                                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                        download
+                                    >
+                                        <i class="mr-2 icon ion-md-download"></i> Download File
+                                    </a>
+                                </div>
+                            @else
+                                <div class="mb-4">
+                                    <h5 class="font-medium text-gray-700">
+                                        Tidak ada file yang diunggah
+                                    </h5>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

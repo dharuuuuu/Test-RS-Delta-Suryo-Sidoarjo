@@ -15,10 +15,12 @@
                 </x-slot>
 
                 <x-form
+                    enctype="multipart/form-data"
                     method="POST"
                     action="{{ route('inspections.store') }}"
                     class="mt-4"
                 >
+                    @csrf
                     @include('app.inspections.form-inputs')
 
                     <div class="mt-10">

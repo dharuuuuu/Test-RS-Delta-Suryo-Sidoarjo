@@ -37,6 +37,7 @@ class Inspection extends Model
         'hasil_pemeriksaan',
         'status',
         'tanggal_pemeriksaan',
+        'file_url',
     ];
 
     // Cast tipe data agar otomatis dikonversi ke tipe yang sesuai

@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\InspectionStoreRequest;
 use App\Http\Requests\InspectionUpdateRequest;
+use Illuminate\Support\Facades\Storage;
+
 
 class InspectionController extends Controller
 {
@@ -52,6 +54,16 @@ class InspectionController extends Controller
 
         $validated = $request->validated();
 
+        // Handle file upload only if the file exists
+        $filePath = null;
+        if ($request->hasFile('file_url')) {
+            // Store the file and get its path
+            $filePath = $request->file('file_url')->store('uploads/inspections', 'public');
+        }
+
+        // Add the file_path to the validated data
+        $validated['file_url'] = $filePath;
+
         $inspection = Inspection::create($validated);
 
         return redirect()
@@ -82,20 +94,35 @@ class InspectionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(
-        InspectionUpdateRequest $request,
-        Inspection $inspection
-    ): RedirectResponse {
-        $this->authorize('update', $inspection);
+    public function update(InspectionUpdateRequest $request, Inspection $inspection): RedirectResponse
+{
+    $this->authorize('update', $inspection);
 
-        $validated = $request->validated();
+    // Get validated data from the form request
+    $validated = $request->validated();
 
-        $inspection->update($validated);
+    // Check if a new file is uploaded
+    if ($request->hasFile('file_url')) {
+        // Delete the old file if it exists
+        if ($inspection->file_url && Storage::exists($inspection->file_url)) {
+            Storage::delete($inspection->file_url);
+        }
 
-        return redirect()
-            ->route('inspections.edit', $inspection)
-            ->withSuccess(__('crud.common.saved'));
+        // Store the new file and get its path
+        $filePath = $request->file('file_url')->store('uploads/inspections', 'public');
+        
+        // Update the validated data with the new file path
+        $validated['file_url'] = $filePath;
     }
+
+    // Update the inspection record with the validated data, including the file_url if uploaded
+    $inspection->update($validated);
+
+    return redirect()
+        ->route('inspections.edit', $inspection)
+        ->withSuccess(__('crud.common.saved'));
+}
+
 
     /**
      * Remove the specified resource from storage.

@@ -24,6 +24,7 @@ return new class extends Migration
             $table->longText('hasil_pemeriksaan');
             $table->string('status');
             $table->date('tanggal_pemeriksaan');
+            $table->longText('file_url');
 
             $table->timestamps();
         });

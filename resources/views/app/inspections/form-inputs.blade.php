@@ -128,6 +128,31 @@
         </x-inputs.group>
     </div>
 
+    <div class="w-full px-4">
+        <x-inputs.group class="w-full">
+            <x-inputs.label-without-asterisk label="Upload File"/>
+    
+            <!-- Display current file if it exists -->
+            @if($editing && $inspection->file_url)
+                <div class="mb-2">
+                    <strong>Current file:</strong>
+                    <a href="{{ Storage::url($inspection->file_url) }}" target="_blank" class="text-blue-600">
+                        View File
+                    </a>
+                </div>
+            @endif
+    
+            <!-- File input for upload -->
+            <input 
+                type="file" 
+                name="file_url"  
+                accept="application/pdf, image/*" 
+                class="form-input w-full"
+            >
+        </x-inputs.group>
+    </div>
+    
+
     <input type="hidden" name="status" value="Draft">
 
 </div>
