@@ -35,4 +35,9 @@ Route::prefix('/')
         Route::resource('permissions', PermissionController::class);
         Route::resource('users', UserController::class);
         Route::resource('inspections', InspectionController::class);
+
+        Route::get('inspections/{inspection}/payment', [InspectionController::class, 'payment'])->name('inspections.payment');
+        Route::post('/invoices/pay', [InspectionController::class, 'pay'])->name('invoices.pay');
+
+        Route::get('/invoices/{inspection}/export_pdf', [InspectionController::class, 'export_pdf'])->name('invoices.export_pdf');
     });

@@ -24,7 +24,7 @@
                         </x-dropdown-link>
                         @endcan
 
-                        @can('view-any', App\Models\User::class)
+                        @can('view-any', App\Models\Inspection::class)
                         <x-dropdown-link href="{{ route('inspections.index') }}">
                         Pemeriksaan
                         </x-dropdown-link>
@@ -177,7 +177,7 @@
                 </x-responsive-nav-link>
                 @endcan
 
-                @can('view-any', App\Models\User::class)
+                @can('view-any', App\Models\Inspection::class)
                 <x-responsive-nav-link href="{{ route('inspections.index') }}">
                 Pemeriksaan
                 </x-responsive-nav-link>

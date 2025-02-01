@@ -49,4 +49,9 @@ class InspectionPolicy
     {
         return false;
     }
+
+    public function payment(User $user, Inspection $model): bool
+    {
+        return $user->hasPermissionTo('invoice payments');
+    }
 }

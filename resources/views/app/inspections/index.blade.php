@@ -95,13 +95,15 @@
                                 </td>
                                 <td class="px-4 py-3 text-center">
                                     <div role="group" aria-label="Row Actions" class="relative inline-flex align-middle">
-                                        @can('update', $inspection)
-                                        <a href="{{ route('inspections.edit', $inspection) }}" class="mr-1">
-                                            <button type="button" class="button">
-                                                <i class="icon ion-md-create"></i>
-                                            </button>
-                                        </a>
-                                        @endcan 
+                                        @if ($inspection->status != 'Terbayar')
+                                            @can('update', $inspection)
+                                            <a href="{{ route('inspections.edit', $inspection) }}" class="mr-1">
+                                                <button type="button" class="button">
+                                                    <i class="icon ion-md-create"></i>
+                                                </button>
+                                            </a>
+                                            @endcan 
+                                        @endif
                                         
                                         @can('view', $inspection)
                                         <a href="{{ route('inspections.show', $inspection) }}" class="mr-1">
@@ -111,17 +113,39 @@
                                         </a>
                                         @endcan 
 
-                                        @can('delete', $inspection)
-                                            <form id="deleteForm" action="{{ route('inspections.destroy', $inspection->id) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <div role="group" aria-label="Row Actions" class=" relative inline-flex align-middle">
-                                                    <button type="button" class="button" onclick="confirmDelete('{{ $inspection->id }}')">
-                                                        <i class="icon ion-md-trash text-red-500"></i>
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        @endcan
+                                        @if ($inspection->status != 'Terbayar')
+                                            @can('delete', $inspection)
+                                                <form id="deleteForm" action="{{ route('inspections.destroy', $inspection->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <div role="group" aria-label="Row Actions" class=" relative inline-flex align-middle">
+                                                        <button type="button" class="button" onclick="confirmDelete('{{ $inspection->id }}')">
+                                                            <i class="icon ion-md-trash text-red-500"></i>
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            @endcan
+                                        @endif
+
+                                        @if ($inspection->status != 'Terbayar')
+                                            @can('payment', $inspection)
+                                            <a href="{{ route('inspections.payment', $inspection) }}" class="mr-1">
+                                                <button type="button" class="button" style="margin: 0 4px;">
+                                                    <i class="ion ion-ios-cash" style="padding: 2px 0;"></i>
+                                                </button>
+                                            </a>
+                                            @endcan 
+                                        @endif
+
+                                        @if ($inspection->status == 'Terbayar')
+                                            @can('payment', $inspection)
+                                            <a href="{{ route('invoices.export_pdf', $inspection->id) }}" class="mr-1">
+                                                <button type="button" class="button" style="margin: 0 4px;">
+                                                    <i class="ion ion-md-cloud-download" style="padding: 2px 0;"></i>
+                                                </button>
+                                            </a>
+                                            @endcan 
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inspection;
+use App\Models\Invoice;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use App\Models\MedicalPrescription;
+use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InspectionController extends Controller
 {
@@ -269,5 +272,141 @@ class InspectionController extends Controller
         return redirect()
             ->route('inspections.index')
             ->withSuccess(__('crud.common.removed'));
+    }
+
+
+    public function payment(Inspection $inspection)
+    {
+        $inspection->load('medicines');
+        $this->authorize('payment', $inspection);
+
+        return view('app.inspections.payment', compact('inspection'));
+    }
+
+
+    public function getMedicinePrice($medicineId, $tanggalPemeriksaan)
+    {
+        $token = $this->getApiToken(); // Dapatkan token API
+
+        if (!$token) {
+            return 0; // Jika token tidak ada, kembalikan harga 0
+        }
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->get("http://recruitment.rsdeltasurya.com/api/v1/medicines/{$medicineId}/prices");
+
+        if ($response->successful()) {
+            $prices = $response->json()['prices'];
+
+            // Ubah tanggal pemeriksaan menjadi objek Carbon tanpa waktu
+            $inspectionDate = Carbon::parse($tanggalPemeriksaan)->startOfDay();
+
+            // Array untuk menampung harga yang valid
+            $validPrices = [];
+
+            // Loop untuk mencari harga yang sesuai
+            foreach ($prices as $price) {
+                // Konversi tanggal start_date dan end_date ke objek Carbon tanpa waktu
+                $startDate = Carbon::parse($price['start_date']['value'])->startOfDay();
+                $endDate = isset($price['end_date']['value']) 
+                    ? Carbon::parse($price['end_date']['value'])->startOfDay() 
+                    : Carbon::today()->startOfDay();
+
+                // Pastikan tanggal pemeriksaan tidak lebih kecil dari start_date
+                if ($inspectionDate < $startDate) {
+                    continue; // Lewati harga ini karena start date belum aktif
+                }
+
+                // Simpan harga yang valid dengan perbedaan hari antara start_date dan tanggal pemeriksaan
+                $validPrices[] = [
+                    'price' => $price['unit_price'],
+                    'start_date_diff' => $inspectionDate->diffInDays($startDate),
+                ];
+            }
+
+            // Jika ada harga yang cocok, pilih yang memiliki start date terdekat dengan tanggal pemeriksaan
+            if (!empty($validPrices)) {
+                usort($validPrices, function ($a, $b) {
+                    return $a['start_date_diff'] <=> $b['start_date_diff']; // Urutkan berdasarkan selisih start date terkecil
+                });
+
+                // Kembalikan harga dengan start date terdekat
+                return $validPrices[0]['price'];
+            }
+        }
+
+        return 0; // Jika tidak ada harga yang cocok, kembalikan 0
+    }
+
+
+    public function pay(Request $request)
+    {
+        // Validasi input dari form 
+        $request->validate([
+            'id_inspection' => 'required|exists:inspections,id',
+            'total_harga' => 'required|integer',
+            'total_bayar' => 'required|integer|min:0',
+        ]);
+
+        // Ambil nilai dari input
+        $idInspection = $request->input('id_inspection');
+        $totalHarga = $request->input('total_harga');
+        $totalBayar = $request->input('total_bayar');
+
+        // Validasi: Pastikan total bayar tidak kurang dari total harga
+        if ($totalBayar < $totalHarga) {
+            return redirect()->back()->with('error', 'Jumlah bayar tidak boleh lebih kecil dari total yang harus dibayar.');
+        }
+
+        // Hitung kembalian
+        $totalKembalian = max(0, $totalBayar - $totalHarga);
+
+        // Hapus invoice lama jika ada untuk `id_inspection` yang sama
+        Invoice::where('id_inspection', $idInspection)->delete();
+
+        // Simpan data invoice baru ke database
+        Invoice::create([
+            'id_inspection' => $idInspection,
+            'total_harga' => $totalHarga,
+            'total_bayar' => $totalBayar,
+            'total_dibayar' => $totalBayar,
+            'total_kembalian' => $totalKembalian,
+        ]);
+
+        // Update status Inspection menjadi "Terbayar"
+        $inspection = Inspection::find($idInspection);
+        $inspection->update(['status' => 'Terbayar']);
+
+        // Redirect dengan pesan sukses (akan ditampilkan menggunakan SweetAlert)
+        return redirect()
+            ->route('inspections.index')
+            ->with('success', 'Invoice berhasil disimpan dan status pemeriksaan diperbarui menjadi "Terbayar".');
+    }
+
+
+    public function export_pdf(Inspection $inspection)
+    {
+        // Muat relasi untuk invoice dan medicines
+        $inspection->load('medicines');
+
+        // Hitung total harga
+        $grandTotal = 0;
+        foreach ($inspection->medicines as $medicine) {
+            $price = app(\App\Http\Controllers\InspectionController::class)->getMedicinePrice($medicine->id_obat, $inspection->tanggal_pemeriksaan);
+            $grandTotal += $medicine->jumlah * $price;
+        }
+
+        // Ambil nilai total_bayar dan total_kembalian
+        $invoice = Invoice::where('id_inspection', $inspection->id)->first();
+        $tanggal_pembayaran = $invoice->created_at ?? 0;
+        $totalBayar = $invoice->total_bayar ?? 0;
+        $totalKembalian = $invoice->total_kembalian ?? 0;
+
+        // Render PDF dengan data
+        $pdf = Pdf::loadView('app.inspections.export', compact('inspection', 'grandTotal', 'totalBayar', 'totalKembalian', 'tanggal_pembayaran'));
+
+        // Unduh file PDF
+        return $pdf->download('invoice-' . $inspection->inv_number . '.pdf');
     }
 }

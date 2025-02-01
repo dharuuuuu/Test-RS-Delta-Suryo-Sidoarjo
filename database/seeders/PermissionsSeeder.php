@@ -24,6 +24,8 @@ class PermissionsSeeder extends Seeder
             'list users', 'view users', 'create users', 'update users', 'delete users',
             
             'list inspections', 'view inspections', 'create inspections', 'update inspections', 'delete inspections',
+
+            'invoice payments'
         ];
 
         foreach ($permissions as $permission) {
@@ -37,7 +39,7 @@ class PermissionsSeeder extends Seeder
         // Assign permissions
         $dokterRole->givePermissionTo(Permission::all()); // Dokter dapat semua permission
         $apotekerRole->givePermissionTo([
-            'list users', 'view users', 'create users', 'update users', 'delete users'
+            'list inspections', 'view inspections', 'invoice payments'
         ]);
 
         // Assign roles to users
