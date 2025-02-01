@@ -8,4 +8,5 @@
 8. Pada terminal run "npm install"
 9. Pada terminal run "npm run build"
 10. Pada terminal run "php artisan migrate:fresh --seed"
+10. Pada terminal run "php artisan storage:link"
 11. Pada terminal run "php artisan serve"
