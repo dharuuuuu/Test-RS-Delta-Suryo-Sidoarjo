@@ -14,9 +14,10 @@ class MedicalPrescriptionStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_inspection' => ['required', 'exists:inspections,id_inspection'], // foreign key
-            'harga_satuan' => ['required', 'integer', 'min:0'], 
-            'jumlah' => ['required', 'integer', 'min:0'], 
+            'id_inspection' => ['required', 'exists:inspections,id_inspection'], 
+            'id_obat' => ['required', 'string', 'max:255'],
+            'nama_obat' => ['required', 'string', 'max:255'],
+            'jumlah' => ['required', 'integer', 'min:1'], 
         ];
     }
 }

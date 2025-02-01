@@ -38,6 +38,7 @@ class Inspection extends Model
         'status',
         'tanggal_pemeriksaan',
         'file_url',
+        'inv_number'
     ];
 
     // Cast tipe data agar otomatis dikonversi ke tipe yang sesuai
@@ -46,4 +47,10 @@ class Inspection extends Model
         'berat_badan' => 'decimal:2',
         'suhu_tubuh' => 'decimal:2',
     ];
+
+    // Model Inspection.php
+    public function medicines()
+    {
+        return $this->hasMany(MedicalPrescription::class, 'id_inspection');
+    }
 }

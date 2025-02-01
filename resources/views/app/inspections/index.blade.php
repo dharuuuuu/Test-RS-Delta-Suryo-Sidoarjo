@@ -16,7 +16,7 @@
                                     <x-inputs.text
                                         name="search"
                                         value="{{ $search ?? '' }}"
-                                        placeholder="Search Nama Pasien.."
+                                        placeholder="Search invoice number.."
                                         autocomplete="off"
                                     ></x-inputs.text>
 
@@ -44,18 +44,12 @@
                         <thead class="text-gray-700">
                             <tr>
                                 <th class="px-4 py-3 text-left">No</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 150px;">Nama Pasien</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 150px;">Tinggi Badan (cm)</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 150px;">Berat Badan (kg)</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 100px;">Systole</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 100px;">Diastole</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 150px;">Heart Rate (BPM)</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 150px;">Respiration Rate</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 150px;">Suhu Tubuh (°C)</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 300px;">Hasil Pemeriksaan</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 150px;">Tanggal Pemeriksaan</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 150px;">Status</th>
-                                <th class="px-4 py-3 text-left" style="min-width: 150px;">Action</th>
+                                <th class="px-4 py-3 text-left">Invoice Number</th>
+                                <th class="px-4 py-3 text-left">Nama Pasien</th>
+                                <th class="px-4 py-3 text-left">Tanggal Pemeriksaan</th>
+                                <th class="px-4 py-3 text-left">Hasil Pemeriksaan</th>
+                                <th class="px-4 py-3 text-left">Status</th>
+                                <th class="px-4 py-3 text-left">Action</th>
                             </tr>
                         </thead>
                         <tbody class="text-gray-600">
@@ -64,16 +58,10 @@
                                 <td class="px-4 py-3 text-left">
                                     {{ $inspections->firstItem() + $loop->index }}
                                 </td>
+                                <td class="px-4 py-3 text-left">{{ $inspection->inv_number ?? '-' }}</td>
                                 <td class="px-4 py-3 text-left">{{ $inspection->nama_pasien ?? '-' }}</td>
-                                <td class="px-4 py-3 text-left">{{ $inspection->tinggi_badan ?? '-' }}</td>
-                                <td class="px-4 py-3 text-left">{{ $inspection->berat_badan ?? '-' }}</td>
-                                <td class="px-4 py-3 text-left">{{ $inspection->systole ?? '-' }}</td>
-                                <td class="px-4 py-3 text-left">{{ $inspection->diastole ?? '-' }}</td>
-                                <td class="px-4 py-3 text-left">{{ $inspection->heart_rate ?? '-' }}</td>
-                                <td class="px-4 py-3 text-left">{{ $inspection->respiration_rate ?? '-' }}</td>
-                                <td class="px-4 py-3 text-left">{{ $inspection->suhu_tubuh ?? '-' }}</td>
-                                <td class="px-4 py-3 text-left">{{ $inspection->hasil_pemeriksaan ?? '-' }}</td>
                                 <td class="px-4 py-3 text-left">{{ $inspection->tanggal_pemeriksaan ?? '-' }}</td>
+                                <td class="px-4 py-3 text-left">{{ $inspection->hasil_pemeriksaan ?? '-' }}</td>
                                 <td class="px-4 py-3 text-left" style="max-width: 400px">
                                     @if ($inspection->status == 'Draft')
                                         <div

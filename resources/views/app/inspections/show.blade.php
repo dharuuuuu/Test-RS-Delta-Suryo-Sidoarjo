@@ -20,6 +20,13 @@
                         <div>
                             <div class="mb-4">
                                 <h5 class="font-medium text-gray-700">
+                                    Nomor Invoice
+                                </h5>
+                                <span>{{ $inspection->inv_number ?? '-' }}</span>
+                            </div>
+
+                            <div class="mb-4">
+                                <h5 class="font-medium text-gray-700">
                                     Nama Pasien
                                 </h5>
                                 <span>{{ $inspection->nama_pasien ?? '-' }}</span>
@@ -148,8 +155,37 @@
                                         Tidak ada file yang diunggah
                                     </h5>
                                 </div>
-                            @endif
-                        </div>
+                            @endif  
+                        </div>                       
+                    </div>
+                </div>
+
+                <br>
+                <div class="mt-4 px-4">
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">Resep Obat</h4>
+                        @if($inspection->medicines->isEmpty())
+                            <p>Informasi obat tidak tersedia</p>
+                        @else
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full table-auto border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-100 border-b">
+                                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Nama Obat</th>
+                                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($inspection->medicines as $prescription)
+                                            <tr class="border-b">
+                                                <td class="px-4 py-2 text-sm text-gray-600">{{ $prescription->nama_obat }}</td>
+                                                <td class="px-4 py-2 text-sm text-gray-600">{{ $prescription->jumlah }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
                     </div>
                 </div>
 

@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('medical_prescriptions', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('id_inspection');
-            $table->integer('harga_satuan');
+            $table->string('id_obat');
+            $table->string('nama_obat');
             $table->integer('jumlah');
 
             $table->timestamps();

@@ -27,13 +27,15 @@ class MedicalPrescription extends Model
     // Mass Assignment Protection (kolom yang bisa diisi secara massal)
     protected $fillable = [
         'id_inspection',
-        'harga_satuan',
+        'id_obat',
+        'nama_obat',
         'jumlah',
     ];
 
     // Relationship ke model Inspection
+    // Model MedicalPrescription.php
     public function inspection()
     {
-        return $this->belongsTo(Inspection::class, 'id_inspection', 'id');
+        return $this->belongsTo(Inspection::class, 'id_inspection');
     }
 }

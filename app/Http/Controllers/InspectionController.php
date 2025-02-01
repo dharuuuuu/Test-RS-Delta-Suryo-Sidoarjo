@@ -11,10 +11,58 @@ use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\InspectionStoreRequest;
 use App\Http\Requests\InspectionUpdateRequest;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+use App\Models\MedicalPrescription;
 
 class InspectionController extends Controller
 {
+    // Fungsi untuk mendapatkan token API
+    private function getApiToken()
+    {
+        // Cek apakah token sudah ada di cache
+        $token = Cache::get('api_token');
+        if (!$token) {
+            // Lakukan request POST ke API untuk mendapatkan token
+            $response = Http::post('http://recruitment.rsdeltasurya.com/api/v1/auth', [
+                'email' => 'dimasddr7@gmail.com', // Email Anda
+                'password' => '085782003596',    // Nomor HP Anda
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $token = $data['access_token'];
+
+                // Simpan token ke cache selama 1 hari
+                Cache::put('api_token', $token, 86400);
+            } else {
+                // Jika gagal mendapatkan token, Anda bisa menambahkan penanganan error
+                return null;
+            }
+        }
+        return $token;
+    }
+
+    // Fungsi untuk mengambil daftar obat
+    private function getMedicines()
+    {
+        $token = $this->getApiToken();
+
+        if (!$token) {
+            return [];
+        }
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->get('http://recruitment.rsdeltasurya.com/api/v1/medicines');
+
+        if ($response->successful()) {
+            return $response->json()['medicines'];
+        }
+
+        return [];
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -42,44 +90,97 @@ class InspectionController extends Controller
     {
         $this->authorize('create', Inspection::class);
 
-        return view('app.inspections.create');
+        $medicines = $this->getMedicines();
+
+        return view('app.inspections.create', compact('medicines'));
     }
+
+    // Fungsi untuk mendapatkan detail obat berdasarkan ID
+    private function getMedicinesByIds($obatIds)
+    {
+        $token = $this->getApiToken();
+
+        if (!$token) {
+            return [];
+        }
+
+        // Ambil semua obat dengan sekali request, menggunakan query parameter untuk ID
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->get('http://recruitment.rsdeltasurya.com/api/v1/medicines', [
+            'ids' => implode(',', $obatIds), // Mengirim ID obat sekaligus
+        ]);
+
+        if ($response->successful()) {
+            return collect($response->json()['medicines'])->keyBy('id');  // Kembalikan hasil dalam bentuk key-value berdasarkan ID
+        }
+
+        return [];
+    }
+
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(InspectionStoreRequest $request): RedirectResponse
     {
-        $this->authorize('create', Inspection::class);
-
         $validated = $request->validated();
-
-        // Handle file upload only if the file exists
+    
+        // Handle file upload
         $filePath = null;
         if ($request->hasFile('file_url')) {
-            // Store the file and get its path
             $filePath = $request->file('file_url')->store('uploads/inspections', 'public');
         }
-
-        // Add the file_path to the validated data
+    
         $validated['file_url'] = $filePath;
-
+    
+        // Simpan pemeriksaan
         $inspection = Inspection::create($validated);
-
+    
+        // Ambil data obat yang dipilih
+        $obatIds = $request->input('id', []);
+        $jumlahObat = $request->input('jumlah', []);
+    
+        // Ambil semua data obat sekaligus
+        $medicines = $this->getMedicinesByIds($obatIds);
+    
+        if ($obatIds) {
+            foreach ($obatIds as $index => $obatId) {
+                // Ambil nama obat dari data yang sudah ada
+                $medicine = $medicines[$obatId] ?? null;
+                $namaObat = $medicine ? $medicine['name'] : null;
+    
+                // Simpan resep obat
+                MedicalPrescription::create([
+                    'id_inspection' => $inspection->id,
+                    'id_obat' => $obatId,
+                    'jumlah' => $jumlahObat[$index],
+                    'nama_obat' => $namaObat,
+                ]);
+            }
+        }
+    
         return redirect()
             ->route('inspections.index')
             ->withSuccess(__('crud.common.created'));
     }
+    
 
     /**
      * Display the specified resource.
      */
     public function show(Request $request, Inspection $inspection): View
     {
+        // Memastikan pemeriksaan memiliki relasi dengan data obat (medicines) yang sudah menyimpan nama obat
+        $inspection->load('medicines');
+
+        // Mengizinkan hanya pemeriksaan yang memiliki izin untuk dilihat
         $this->authorize('view', $inspection);
 
         return view('app.inspections.show', compact('inspection'));
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -88,40 +189,74 @@ class InspectionController extends Controller
     {
         $this->authorize('update', $inspection);
 
-        return view('app.inspections.edit', compact('inspection'));
+        $medicines = $this->getMedicines();
+
+        // Ambil resep obat yang sudah ada terkait pemeriksaan ini
+        $currentMedicines = MedicalPrescription::where('id_inspection', $inspection->id)->get();
+
+        // Siapkan array untuk ID obat yang sudah dipilih
+        $currentMedicinesIds = $currentMedicines->pluck('id_obat')->toArray();
+
+        // Kirim data ke view
+        return view('app.inspections.edit', compact('inspection', 'medicines', 'currentMedicinesIds', 'currentMedicines'));
     }
+
 
     /**
      * Update the specified resource in storage.
      */
     public function update(InspectionUpdateRequest $request, Inspection $inspection): RedirectResponse
-{
-    $this->authorize('update', $inspection);
+    {
+        $this->authorize('update', $inspection);
 
-    // Get validated data from the form request
-    $validated = $request->validated();
+        // Validasi data dari form request
+        $validated = $request->validated();
 
-    // Check if a new file is uploaded
-    if ($request->hasFile('file_url')) {
-        // Delete the old file if it exists
-        if ($inspection->file_url && Storage::exists($inspection->file_url)) {
-            Storage::delete($inspection->file_url);
+        // Cek apakah ada file baru yang diupload
+        if ($request->hasFile('file_url')) {
+            // Hapus file lama jika ada
+            if ($inspection->file_url && Storage::exists($inspection->file_url)) {
+                Storage::delete($inspection->file_url);
+            }
+
+            // Simpan file baru dan dapatkan path-nya
+            $filePath = $request->file('file_url')->store('uploads/inspections', 'public');
+            $validated['file_url'] = $filePath; // Menyimpan path file yang baru
         }
 
-        // Store the new file and get its path
-        $filePath = $request->file('file_url')->store('uploads/inspections', 'public');
-        
-        // Update the validated data with the new file path
-        $validated['file_url'] = $filePath;
+        // Update pemeriksaan dengan data validasi
+        $inspection->update($validated);
+
+        // Mengambil data ID obat dan jumlah yang dipilih dari form
+        $obatIds = $request->input('id', []); // Daftar ID obat yang dipilih
+        $jumlahObat = $request->input('jumlah', []); // Jumlah obat yang dipilih
+
+        // Hapus resep obat lama terkait pemeriksaan ini
+        MedicalPrescription::where('id_inspection', $inspection->id)->delete();
+
+        // Ambil data obat berdasarkan ID yang dipilih
+        $medicines = $this->getMedicinesByIds($obatIds);
+
+        if ($obatIds) {
+            foreach ($obatIds as $index => $obatId) {
+                // Ambil nama obat dari data yang sudah ada
+                $medicine = $medicines[$obatId] ?? null;
+                $namaObat = $medicine ? $medicine['name'] : null;
+
+                // Menyimpan resep obat baru
+                MedicalPrescription::create([
+                    'id_inspection' => $inspection->id,
+                    'id_obat' => $obatId,
+                    'jumlah' => $jumlahObat[$index],
+                    'nama_obat' => $namaObat,
+                ]);
+            }
+        }
+
+        return redirect()
+            ->route('inspections.edit', $inspection)
+            ->withSuccess(__('crud.common.saved'));  // Memberikan notifikasi bahwa data berhasil disimpan
     }
-
-    // Update the inspection record with the validated data, including the file_url if uploaded
-    $inspection->update($validated);
-
-    return redirect()
-        ->route('inspections.edit', $inspection)
-        ->withSuccess(__('crud.common.saved'));
-}
 
 
     /**
