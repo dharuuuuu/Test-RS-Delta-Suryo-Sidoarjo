@@ -74,7 +74,7 @@ class InspectionController extends Controller
 
         $inspections = Inspection::query()
             ->when($search, function ($query, $search) {
-                return $query->where('nama_pasien', 'like', "%{$search}%");
+                return $query->where('inv_number', 'like', "%{$search}%");
             })
             ->orderByDesc('created_at')
             ->paginate(10)
@@ -117,8 +117,6 @@ class InspectionController extends Controller
 
         return [];
     }
-
-
 
     /**
      * Store a newly created resource in storage.

@@ -127,7 +127,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="13" class="text-center py-4">
+                                <td colspan="7" class="text-center py-4">
                                     @lang('crud.common.no_items_found')
                                 </td>
                             </tr>
@@ -135,7 +135,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="13">
+                                <td colspan="7">
                                     <div class="mt-10 px-4">
                                         {!! $inspections->render() !!}
                                     </div>

@@ -53,4 +53,10 @@ class Inspection extends Model
     {
         return $this->hasMany(MedicalPrescription::class, 'id_inspection');
     }
+
+    // Model Inspection.php
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'id_inspection');
+    }
 }
